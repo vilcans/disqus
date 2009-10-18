@@ -206,7 +206,6 @@ module Disqus
       # * <tt>:url</tt> - the URL this thread is on, if known.
       # * <tt>:allow_comment</tt> - whether this thread is open to new comments
       def update_thread(opts = {})
-        raise opts.inspect
         JSON.parse(post('update_thread',
           :forum_api_key  => opts[:forum_api_key],
           :thread_id      => opts[:thread_id],
@@ -241,10 +240,12 @@ module Disqus
       end
       
       def post(*args)
-        url = ROOT + '/' + args.shift 
+        url = ROOT + '/' + args.shift + '/'
         post_params = {}
         args.shift.each { |k, v| post_params[k.to_s]=v.to_s }
-        Net::HTTP.post_form(URI.parse(url),post_params)
+        post_params.reject! { |k, v| v == nil or v == '' }
+        result = Net::HTTP.post_form(URI.parse(url),post_params)
+        result.body
       end
 
       def make_url(*args)

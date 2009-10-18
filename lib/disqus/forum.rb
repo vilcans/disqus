@@ -1,4 +1,6 @@
 module Disqus
+  require 'disqus/api'
+  require 'disqus/thread'
 
   class Forum
     attr_reader :id, :shortname, :name, :created_at, :threads
@@ -57,6 +59,9 @@ module Disqus
       response = Disqus::Api::get_thread_by_url(:url => url, :forum_api_key => key)
       if response["succeeded"]
         t = response["message"]
+        if t == nil
+          return nil
+        end
         Thread.new(t["id"], self, t["slug"], t["title"], t["created_at"], t["allow_comments"], t["url"], t["identifier"])
       else
         raise_api_error(response)
